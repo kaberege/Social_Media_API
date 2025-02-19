@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'posts.apps.PostsConfig',
     'notifications.apps.NotificationsConfig',
+    'message.apps.MessageConfig',
     'django_filters',
     'rest_framework_simplejwt',
     'drf_yasg',
