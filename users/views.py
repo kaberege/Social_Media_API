@@ -12,8 +12,9 @@ from drf_yasg.utils import swagger_auto_schema
 
 User = get_user_model()  # Custom user model
 
+# Handle user registration requests
 class RegisterView(views.APIView):
-    # Handle user registration requests
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Register a user",
         operation_description="Handle user registration requests"
@@ -33,9 +34,9 @@ class RegisterView(views.APIView):
         # If the serializer data is invalid, return the validation errors with HTTP status 400 (Bad Request)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+# Handle user login requests
 class LoginView(views.APIView):
-    # Handle user login requests
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Login a user",
         operation_description="This handles user login requests and generates JWT"
@@ -72,6 +73,7 @@ class UserProfileView(views.APIView):
     # Restrict access to authenticated users only
     permission_classes = [IsAuthenticated]
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="User profile",
         operation_description="Get the currently authenticated user's profile"
@@ -95,6 +97,7 @@ class UpdateProfileAPIView(views.APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Update user profile",
         operation_description="This updates a user's profile"
@@ -124,6 +127,7 @@ class UserProfileDelete(views.APIView):
     # Ensure only authenticated users can access this view
     permission_classes = [IsAuthenticated]
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Delete user profile",
         operation_description="This deletes a user's profile"
@@ -141,6 +145,7 @@ class UserProfileDelete(views.APIView):
 class FollowUser(views.APIView):
     permission_classes = [IsAuthenticated]
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Follow a user",
         operation_description="This follows a user"
@@ -175,7 +180,8 @@ class FollowUser(views.APIView):
 
 class UnfollowUser(views.APIView):
     permission_classes = [IsAuthenticated]
-
+    
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Unfollow a user",
         operation_description="This unfollows a user"

@@ -46,6 +46,7 @@ class PostViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("You can only delete your own posts!")
         instance.delete()
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Retrieve a list of posts",
         operation_description="Get a paginated list of posts with optional filtering, searching, and ordering."
@@ -56,6 +57,7 @@ class PostViewSet(viewsets.ModelViewSet):
         """
         return super().list(request, *args, **kwargs)
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Create a new post",
         operation_description="Create a new post. The author is automatically set to the logged-in user."
@@ -67,6 +69,7 @@ class PostViewSet(viewsets.ModelViewSet):
         """
         return super().create(request, *args, **kwargs)
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Retrieve a specific post by its ID",
         operation_description="Get details of a single post by its ID."
@@ -77,6 +80,7 @@ class PostViewSet(viewsets.ModelViewSet):
         """
         return super().retrieve(request, *args, **kwargs)
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Update an existing post",
         operation_description="Update an existing post. Only the post's author can update it."
@@ -87,6 +91,18 @@ class PostViewSet(viewsets.ModelViewSet):
         """
         return super().update(request, *args, **kwargs)
 
+     # Apply swagger documentation
+    @swagger_auto_schema(
+        operation_summary="Partially update an existing post",
+        operation_description="Partially update an existing post. Only the post's author can update it."
+    )
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Partially update an existing post. Only the post's author can update it.
+        """
+        return super().partia_update(request, *args, **kwargs)
+
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Delete a post",
         operation_description="Delete a post. Only the post's author can delete it."
@@ -161,13 +177,14 @@ class CommentViewset(viewsets.ModelViewSet):
         if self.get_object().author != self.request.user:
             raise PermissionDenied("You can only update your own posts.")
         serializer.save()
-
+    
     def perform_destroy(self, instance):
         # Check if the user is the author before deleting
         if instance.author != self.request.user:
             raise PermissionDenied("You can only delete your own posts.")
         instance.delete()
-    
+
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Retrieve a list of comments",
         operation_description="Get a paginated list of comments on posts, with optional filtering, searching, and ordering."
@@ -178,6 +195,7 @@ class CommentViewset(viewsets.ModelViewSet):
         """
         return super().list(request, *args, **kwargs)
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Create a new comment",
         operation_description="Create a new comment on a post. The author is automatically set to the logged-in user, and a notification is sent to the post author."
@@ -189,6 +207,7 @@ class CommentViewset(viewsets.ModelViewSet):
         """
         return super().create(request, *args, **kwargs)
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Retrieve a specific comment by its ID",
         operation_description="Get details of a specific comment by its ID."
@@ -199,6 +218,7 @@ class CommentViewset(viewsets.ModelViewSet):
         """
         return super().retrieve(request, *args, **kwargs)
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Update an existing comment",
         operation_description="Update an existing comment. Only the comment's author can update it."
@@ -208,7 +228,19 @@ class CommentViewset(viewsets.ModelViewSet):
         Update an existing comment. Only the comment's author can update it.
         """
         return super().update(request, *args, **kwargs)
+    
+    # Apply swagger documentation
+    @swagger_auto_schema(
+        operation_summary="Partially update an existing comment",
+        operation_description="Partially update an existing comment. Only the comment's author can update it."
+    )
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Partially update an existing comment. Only the comment's author can update it.
+        """
+        return super().partia_update(request, *args, **kwargs)
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Delete a comment",
         operation_description="Delete a comment. Only the comment's author can delete it."
@@ -221,6 +253,7 @@ class CommentViewset(viewsets.ModelViewSet):
 
 # View for liking a post
 class LikePostView(views.APIView):
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Like a post",
         operation_description="View for liking a post"
@@ -254,6 +287,7 @@ class LikePostView(views.APIView):
 
 # View for unliking a post
 class UnlikePostView(views.APIView):
+    # Adding Swagger documentation
     @swagger_auto_schema(
         operation_summary="Unlike a post",
         operation_description="View for unliking a post"

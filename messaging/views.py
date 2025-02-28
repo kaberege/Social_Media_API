@@ -6,9 +6,11 @@ from rest_framework import generics, status, filters, views
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
+from notifications.models import Notification
+from django.contrib.contenttypes.models import ContentType
+from drf_yasg.utils import swagger_auto_schema
 
 User = get_user_model() # Using the custom User model
-
 
 class ListCreateMessageView(generics.ListCreateAPIView):
     queryset = Message.objects.all()
@@ -41,13 +43,46 @@ class ListCreateMessageView(generics.ListCreateAPIView):
         # Save the message and set sender
         receiver_id = self.request.data.get("receiver")
         receiver = get_object_or_404(User, id=receiver_id)
-        if receiver == self.request.user:
+        user = self.request.user
+
+        if receiver == user:
             raise PermissionDenied("You cannot send message to yourself")
-        serializer.save(sender=self.request.user)
+
+        # Save the message and get the instance
+        message = serializer.save(sender=user)
+
+        # Create a notification for the receiver
+        notification = Notification.objects.create(
+            recipient=receiver,  # The receiver of the message
+            actor=user,  # The user who sent the message
+            verb='Direct message',  # Verb explaining the action
+            target_content_type=ContentType.objects.get_for_model(Message),  # The content type of the Message model
+            target_object_id=message.id  # The specific message ID that was just created
+        )
+
+    # Apply swagger documentation
+    @swagger_auto_schema(
+        operation_summary="Retrieve a list of received messages",
+        operation_description="Get a list of received messages with optional filtering, searching, and ordering."
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    # Apply swagger documentation
+    @swagger_auto_schema(
+        operation_summary="Send a direct message",
+        operation_description="This allows users to send private messages to each other"
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
 
 class MarkMessageAsReadView(views.APIView):
     permission_classes = [IsAuthenticated]
-
+    @swagger_auto_schema(
+        operation_summary = "Mark a message as read.",
+        operation_description = "This view enables a user to mark received messages as read (is_read = True)"
+    )
     def put(self, request, message_id):
         user = request.user
 

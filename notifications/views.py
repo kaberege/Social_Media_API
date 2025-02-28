@@ -38,7 +38,7 @@ class NotificationListView(generics.ListAPIView):
             'read_notifications': read_serializer.data,      # Read after
         }, status=status.HTTP_200_OK)
 
-
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Retrieve a list of notifications",
         operation_description="This endpoint returns a list of notifications for the authenticated user, with unread notifications listed first, followed by read notifications. Notifications are ordered by timestamp, with the most recent appearing at the top. You can filter the notifications by read/unread status."
@@ -51,6 +51,7 @@ class NotificationListView(generics.ListAPIView):
 class MarkNotificationReadView(views.APIView):
     permission_classes = [IsAuthenticated]
 
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Mark notifications as read",
         operation_description="This marks notifications as read"
@@ -65,7 +66,8 @@ class MarkNotificationReadView(views.APIView):
         except Notification.DoesNotExist:
             # If notification is not found, return a 404 error
             return Response({"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
-
+            
+    # Apply swagger documentation
     @swagger_auto_schema(
         operation_summary="Mark notifications as unread",
         operation_description="This marks notifications as unread"
