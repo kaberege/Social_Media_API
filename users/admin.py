@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth import get_user_model
+from .models import CustomUserProfile
 
 # Get the custom user model
 User = get_user_model()
@@ -33,5 +34,10 @@ class CustomUserAdmin(UserAdmin):
         (None, {'fields': ('bio', 'profile_picture', 'followers' )}),  # Add 'bio' and 'profile_picture' fields
     )
 
-# Register the custom user model with the custom admin interface
-admin.site.register(User, CustomUserAdmin)
+class CustomUserProfileAdmin(admin.ModelAdmin):
+    list_display = ["user", "location", "website", "created_at"]
+    list_filter = ["user", "location", "created_at"]
+    search_fields = ["user", "location", "created_at"]
+
+admin.site.register(User, CustomUserAdmin) # Register the custom user model with the custom admin interface
+admin.site.register(CustomUserProfile, CustomUserProfileAdmin) # Register customized user profile with cover photo...

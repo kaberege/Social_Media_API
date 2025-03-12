@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404
-from rest_framework import status, views, generics
+from rest_framework import status, views, generics, viewsets
 from django.contrib.auth import authenticate, get_user_model
-from .serializers import RegistrationSerializer, LoginSerializer, UserProfileSerializer, UserProfileUpdateSerializer
+from .serializers import RegistrationSerializer, LoginSerializer, UserProfileSerializer, UserProfileUpdateSerializer, CustomUserProfileSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
+from .models import CustomUser, CustomUserProfile
 from notifications.models import Notification
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_auto_schema
@@ -202,4 +204,100 @@ class UnfollowUser(views.APIView):
         request.user.following.remove(user_to_unfollow)
 
         return Response({"message": "user unfollowed successfully."}, status=status.HTTP_200_OK)
+
+class CustomUserProfileView(viewsets.ModelViewSet):
+    queryset = CustomUserProfile.objects.all()
+    serializer_class =  CustomUserProfileSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user = CustomUserProfile.objects.filter(user=self.request.user)
+        return user
+
+    def perform_create(self, serializer):
+         # Check if the user already has a profile
+        if CustomUserProfile.objects.filter(user=self.request.user).exists():
+            raise PermissionDenied("You already have a profile. You cannot create multiple profiles.")
+
+        # Set the current user as the custom profile owner
+        serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        # Checking if the user is the owner of the custom profile before updating
+        if self.get_object().user != self.request.user:
+            raise PermissionDenied("You can only update your profile cover")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # Checking if the user is the owner of the custom profile before deleting
+        if self.get_object().user != self.request.user:
+            raise PermissionDenied("You can only delete your profile cover")
+        instance.delete()
+
+    # Apply swagger documentation
+    @swagger_auto_schema(
+        operation_summary="Retrieve a list of custom user profiles",
+        operation_description="Get a list of custom profiles for the currently authenticated user."
+    )
+    def list(self, request, *args, **kwargs):
+        """
+        Retrieve a list of custom user profiles for the authenticated user.
+        """
+        return super().list(request, *args, **kwargs)
+
+    # Apply swagger documentation
+    @swagger_auto_schema(
+        operation_summary="Create a new custom user profile",
+        operation_description="Create a custom user profile. A user can only have one profile."
+    )
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new custom user profile for the authenticated user.
+        Only one profile is allowed per user.
+        """
+        return super().create(request, *args, **kwargs)
+
+    # Apply swagger documentation
+    @swagger_auto_schema(
+        operation_summary="Retrieve a specific custom user profile",
+        operation_description="Get details of a specific custom user profile."
+    )
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Retrieve the details of a specific custom user profile.
+        """
+        return super().retrieve(request, *args, **kwargs)
+
+    # Apply swagger documentation
+    @swagger_auto_schema(
+        operation_summary="Update an existing custom user profile",
+        operation_description="Update an existing custom user profile. Only the profile owner can update it."
+    )
+    def update(self, request, *args, **kwargs):
+        """
+        Update the custom user profile. Only the profile owner can update it.
+        """
+        return super().update(request, *args, **kwargs)
+
+    # Apply swagger documentation
+    @swagger_auto_schema(
+        operation_summary="Partially update an existing custom user profile",
+        operation_description="Partially update an existing custom user profile. Only the profile owner can update it."
+    )
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Partially update the custom user profile. Only the profile owner can update it.
+        """
+        return super().partia_update(request, *args, **kwargs)
+
+    # Apply swagger documentation
+    @swagger_auto_schema(
+        operation_summary="Delete a custom user profile",
+        operation_description="Delete a custom user profile. Only the profile owner can delete it."
+    )
+    def destroy(self, request, *args, **kwargs):
+        """
+        Delete the custom user profile. Only the profile owner can delete it.
+        """
+        return super().destroy(request, *args, **kwargs)
 

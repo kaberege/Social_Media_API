@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from .models import CustomUserProfile
 
 User = get_user_model() # Custom user
 
@@ -23,13 +24,26 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
     
+
+# Serializer for viewing the user's customized profile with location, website, & cover photo
+class CustomUserProfileSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    cover_photo = serializers.ImageField(required=False, allow_null=True)
+    created_at = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S', read_only=True)
+    updated_at = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S', read_only=True)
+
+    class Meta:
+        model = CustomUserProfile
+        fields = "__all__"
+
     # Serializer for viewing the user's profile
 class UserProfileSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
+    customized_profile = CustomUserProfileSerializer(read_only=True)
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "bio", "profile_picture"]
+        fields = ["id", "username", "email", "bio", "profile_picture", "customized_profile" ]
 
     def get_profile_picture(self, obj):
         # Return URL or None if no profile picture exists

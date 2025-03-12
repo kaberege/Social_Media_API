@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.conf import settings
 
 # Custom manager for user creation
 class CustomUserManager(BaseUserManager):
@@ -35,3 +36,15 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+# Customized user profile with additional fields like location, website, & cover photo
+class CustomUserProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Link to CustomUser model
+    location = models.CharField(max_length=100, blank=True, null=True)  # Optional Location field
+    website = models.URLField(max_length=200, blank=True, null=True)  # Optional Website field
+    cover_photo = models.ImageField(upload_to='cover_photos/', blank=True, null=True)  # Optional Cover Photo field
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s profile"
